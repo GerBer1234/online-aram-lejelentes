@@ -1,0 +1,20 @@
+<resources>
+    <string name="app_name">eMeter</string>
+    <string name="logout">Kijelentkezés</string>
+    <string name="emailAddress">E-mail címed</string>
+    <string name="newPassword">Új jelszó kérése</string>
+    <string name="cancel">Mégse</string>
+    <string name="login">Bejelentkezés</string>
+    <string name="registration">Regisztráció</string>
+    <string name="forgotPassword">Elfelejtett jelszó</string>
+    <string name="send">Küldés</string>
+    <string name="address">Lakcím</string>
+    <string name="phoneNumber">+36-20/123-4567</string>
+    <string name="passwordAgain">Jelszó újra</string>
+    <string name="password">Jelszó</string>
+    <string name="email">Email</string>
+    <string name="fullName">Teljes név</string>
+    <string name="programName">eMeter</string>
+    <string name="logoDescription">Az applikáció logója.</string>
+    <string name="description">Áramlejelentő</string>
+</resources>
