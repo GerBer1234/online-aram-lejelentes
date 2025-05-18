@@ -4,12 +4,18 @@ plugins {
 
 android {
     namespace = "com.example.emeter"
+
+    // Használt SDK verzió beállítása
     compileSdk = 35
 
     defaultConfig {
         applicationId = "com.example.emeter"
+
+        // Minimum és target SDK verziók
         minSdk = 24
         targetSdk = 35
+
+        // Verzióinformációk
         versionCode = 1
         versionName = "1.0"
 
@@ -32,7 +38,6 @@ android {
 }
 
 dependencies {
-
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.activity)
@@ -40,8 +45,15 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
+
+    // Firebase szolgáltatásokhoz
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.auth)
+    implementation(libs.firebase.firestore)
+
+    // Helymeghatározáshoz
+    implementation(libs.play.services.location)
 }
 
+// Firebase szolgáltatások inicializálása
 apply(plugin = "com.google.gms.google-services")

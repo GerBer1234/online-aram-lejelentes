@@ -3,6 +3,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.example.emeter">
 
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -14,6 +19,7 @@
         android:theme="@style/Theme.EMeter"
         tools:targetApi="31">
 
+        <!-- Kezdőképernyő -->
         <activity
             android:name=".SplashActivity"
             android:exported="true">
@@ -23,26 +29,45 @@
             </intent-filter>
         </activity>
 
+        <!-- Bejelentkezési felület -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
             android:windowSoftInputMode="adjustResize" />
 
+        <!-- Regisztráció -->
         <activity
             android:name=".RegisterActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
 
+        <!-- Főképernyő bejelentkezés után -->
         <activity
             android:name=".HomeActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
 
+        <!-- Jelszóemlékeztető -->
         <activity
             android:name=".ForgotPasswordActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
 
+        <!-- Új bejelentés rögzítése -->
+        <activity
+            android:name=".NewReadingActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <!-- Összes bejelentés megtekintése -->
+        <activity
+            android:name=".AllReadingsActivity"
+            android:exported="false" />
+
+        <!-- Értesítések időzítését kezelő BroadcastReceiver -->
+        <receiver
+            android:name=".AlarmReceiver"
+            android:exported="false" />
 
     </application>
 

@@ -1,6 +1,8 @@
 package com.example.emeter;
 
 import android.content.Intent;
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputType;
@@ -12,28 +14,44 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.google.firebase.auth.FirebaseAuth;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
-public class RegisterActivity extends AppCompatActivity {
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.os.Looper;
+
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.location.LocationServices;
+
+/**
+ * A regisztrációs képernyő osztálya.
+ */
+public class RegisterActivity extends BaseActivity {
     private static final String LOG_TAG = RegisterActivity.class.getName();
-
     private EditText fullNameEditText;
     private EditText emailEditText;
     private EditText passwordEditText;
     private EditText passwordAgainEditText;
     private EditText phoneEditText;
     private EditText addressEditText;
-
     private FirebaseAuth mAuth;
-
     private final List<String> validAreaCodes = Arrays.asList(
             "1", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29",
             "30", "31", "32", "33", "34", "35", "36", "37", "40", "42", "44",
@@ -42,12 +60,25 @@ public class RegisterActivity extends AppCompatActivity {
             "75", "76", "77", "78", "79", "80", "82", "83", "84", "85", "87",
             "88", "89", "90", "91", "92", "93", "94", "95", "96", "99"
     );
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1001;
+    private FusedLocationProviderClient fusedLocationClient;
 
+    /**
+     * Inicializálás.
+     *
+     * @param savedInstanceState Az előző állapot, ha az activity új, különben null.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_register);
+
+        if (hasLocationPermission()) {
+            fetchLocationIfPermitted();
+        } else {
+            requestLocationPermission();
+        }
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.registerLayout), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -73,10 +104,12 @@ public class RegisterActivity extends AppCompatActivity {
             boolean editing;
 
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
 
             @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
 
             @Override
             public void afterTextChanged(Editable s) {
@@ -123,8 +156,14 @@ public class RegisterActivity extends AppCompatActivity {
                 phoneEditText.setText(formatted);
             }
         });
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        fetchLocationIfPermitted();
     }
 
+    /**
+     * Ellenőrzi a mezők helyességét, és ha minden rendben, regisztrálja a felhasználót a Firebase
+     * Authentication segítségével.
+     */
     public void register(View view) {
         Log.d(LOG_TAG, "register() meghívódott");
 
@@ -208,7 +247,92 @@ public class RegisterActivity extends AppCompatActivity {
                 });
     }
 
+    /**
+     * Visszatér az előző képernyőre.
+     */
     public void cancel(View view) {
         finish();
+    }
+
+    /**
+     * Helymeghatározási engedély megléte esetén megkísérli a tartózkodási hely alapján
+     * automatikusan kitölteni a cím mezőt.
+     */
+    private void fetchLocationIfPermitted() {
+        addressEditText = findViewById(R.id.addressEditText);
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
+            LocationRequest locationRequest = LocationRequest.create();
+            locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+            locationRequest.setInterval(10000);
+            locationRequest.setFastestInterval(5000);
+            locationRequest.setNumUpdates(1);
+
+            fusedLocationClient.requestLocationUpdates(locationRequest, new LocationCallback() {
+
+                @Override
+                public void onLocationResult(LocationResult locationResult) {
+                    if (locationResult == null) return;
+
+                    Location location = locationResult.getLastLocation();
+                    if (location != null) {
+                        double lat = location.getLatitude();
+                        double lon = location.getLongitude();
+
+                        Geocoder geocoder = new Geocoder(RegisterActivity.this, Locale.getDefault());
+                        try {
+                            List<Address> addresses = geocoder.getFromLocation(lat, lon, 1);
+                            if (addresses != null && !addresses.isEmpty()) {
+                                String city = addresses.get(0).getLocality();
+                                if (city != null && !city.isEmpty()) {
+                                    addressEditText.setText(city);
+                                }
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }, Looper.getMainLooper());
+        } else {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    LOCATION_PERMISSION_REQUEST_CODE);
+        }
+    }
+
+    /**
+     * Ellenőrzi, hogy a szükséges helymeghatározási engedélyek megvannak-e.
+     */
+    private boolean hasLocationPermission() {
+        return ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                && ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+    }
+
+    /**
+     * Bekéri a szükséges helymeghatározási engedélyeket a felhasználótól.
+     */
+    private void requestLocationPermission() {
+        ActivityCompat.requestPermissions(
+                this,
+                new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
+                LOCATION_PERMISSION_REQUEST_CODE
+        );
+    }
+
+    /**
+     * Ha engedélyezve lett a helyhozzáférés, újrapróbálja a cím kitöltését.
+     */
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                fetchLocationIfPermitted();
+            } else {
+                Toast.makeText(this, "A helymeghatározás nem engedélyezett", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 }

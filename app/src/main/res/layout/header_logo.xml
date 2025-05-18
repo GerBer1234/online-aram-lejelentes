@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Általános fejléc -->
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -7,6 +8,7 @@
     android:paddingStart="48dp"
     android:paddingEnd="48dp">
 
+    <!-- Logó -->
     <ImageView
         android:id="@+id/logoImage"
         android:layout_width="48dp"
@@ -17,6 +19,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <!-- Cím és alcím -->
     <LinearLayout
         android:id="@+id/logoTextLayout"
         android:layout_width="0dp"
@@ -33,7 +36,7 @@
             android:id="@+id/appTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="eMeter"
+            android:text="@string/app_name"
             android:textColor="#FFFFFF"
             android:textSize="18sp"
             android:textStyle="bold" />
@@ -42,11 +45,12 @@
             android:id="@+id/appSubtitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Áramlejelentő"
+            android:text="@string/description"
             android:textColor="#CCCCCC"
             android:textSize="14sp" />
     </LinearLayout>
 
+    <!-- Kijelentkezés gomb -->
     <ImageButton
         android:id="@+id/logoutButton"
         android:layout_width="36dp"

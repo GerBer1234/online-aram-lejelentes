@@ -13,11 +13,20 @@ import android.media.MediaPlayer;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+/**
+ * Lefuttatja az intró animációkat és lejátszik egy rövid hangot. Ezután automatikusan
+ * továbbnavigál a bejelentkezési képernyőre.
+ */
 public class SplashActivity extends AppCompatActivity {
 
     private static final int STEP_DELAY = 500;
     private static final int SPLASH_DELAY = 2500;
 
+    /**
+     * Elindítja az animációkat és a kezdőhangot.
+     *
+     * @param savedInstanceState Az activity korábbi állapotáta, ha van.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
